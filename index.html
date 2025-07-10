@@ -91,6 +91,13 @@
       <label for="weighted">Weighted Cost ($)</label>
       <input type="number" id="weighted" placeholder="Enter weighted cost" />
     </div>
+    <div class="form-group">
+      <label for="allegro">Is this a Yamaha Allegro Model?</label>
+      <select id="allegro">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
 
     <button class="calculate-btn" onclick="calculateCost()">Calculate Cost to Purchase</button>
     <div class="result" id="result"></div>
@@ -107,7 +114,13 @@
       const type = document.getElementById('calculatorType').value;
       const retail = parseFloat(document.getElementById('retail').value);
       const credit = parseFloat(document.getElementById('credit').value);
+      const allegro = document.getElementById('allegro').value;
       const result = document.getElementById('result');
+
+      if (allegro === 'yes') {
+        result.textContent = 'Please check the employee manual for accurate pricing on Yamaha Allegro Models';
+        return;
+      }
 
       if (isNaN(retail) || isNaN(credit)) {
         result.textContent = 'Please enter valid numbers.';
