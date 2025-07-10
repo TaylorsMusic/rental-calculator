@@ -71,9 +71,11 @@
 
     <div class="form-group">
       <label for="calculatorType">Choose Calculator</label>
-      <select id="calculatorType">
+      <select id="calculatorType" onchange="toggleWeightedCost()">
         <option value="studentBand">Student Band Instrument</option>
         <option value="studentString">Student String Instrument</option>
+        <option value="intermediateBand">Intermediate/Pro Band Instrument</option>
+        <option value="intermediateString">Intermediate/Pro String Instrument</option>
       </select>
     </div>
 
@@ -85,11 +87,22 @@
       <label for="credit">Rental Credit ($)</label>
       <input type="number" id="credit" placeholder="Enter rental credit" />
     </div>
+    <div class="form-group" id="weightedContainer" style="display: none;">
+      <label for="weighted">Weighted Cost ($)</label>
+      <input type="number" id="weighted" placeholder="Enter weighted cost" />
+    </div>
+
     <button class="calculate-btn" onclick="calculateCost()">Calculate Cost to Purchase</button>
     <div class="result" id="result"></div>
   </div>
 
   <script>
+    function toggleWeightedCost() {
+      const type = document.getElementById('calculatorType').value;
+      const weightedContainer = document.getElementById('weightedContainer');
+      weightedContainer.style.display = (type === 'intermediateBand' || type === 'intermediateString') ? 'block' : 'none';
+    }
+
     function calculateCost() {
       const type = document.getElementById('calculatorType').value;
       const retail = parseFloat(document.getElementById('retail').value);
@@ -101,22 +114,43 @@
         return;
       }
 
-      const maxDiscount = retail * 0.5;
       let discountedPrice;
 
       if (type === 'studentBand') {
+        const maxDiscount = retail * 0.5;
         discountedPrice = retail - credit;
         discountedPrice -= discountedPrice * 0.3;
+        discountedPrice = Math.max(retail - maxDiscount, discountedPrice);
       } else if (type === 'studentString') {
+        const maxDiscount = retail * 0.5;
         discountedPrice = retail - credit;
         discountedPrice -= discountedPrice * 0.2;
+        discountedPrice = Math.max(retail - maxDiscount, discountedPrice);
+      } else if (type === 'intermediateBand') {
+        const weighted = parseFloat(document.getElementById('weighted').value);
+        if (isNaN(weighted)) {
+          result.textContent = 'Please enter a valid weighted cost.';
+          return;
+        }
+        const maxAllowedDiscount = weighted * 1.2;
+        discountedPrice = retail - credit;
+        discountedPrice = Math.max(discountedPrice, maxAllowedDiscount);
+      } else if (type === 'intermediateString') {
+        const weighted = parseFloat(document.getElementById('weighted').value);
+        if (isNaN(weighted)) {
+          result.textContent = 'Please enter a valid weighted cost.';
+          return;
+        }
+        const maxAllowedDiscount = weighted * 1.2;
+        discountedPrice = retail - credit;
+        discountedPrice -= discountedPrice * 0.2;
+        discountedPrice = Math.max(discountedPrice, maxAllowedDiscount);
       } else {
         result.textContent = 'Invalid calculator type.';
         return;
       }
 
-      const costToPurchase = Math.max(retail - maxDiscount, discountedPrice);
-      result.textContent = `Cost to Purchase: $${costToPurchase.toFixed(2)}`;
+      result.textContent = `Cost to Purchase: $${discountedPrice.toFixed(2)}`;
     }
   </script>
 </body>
