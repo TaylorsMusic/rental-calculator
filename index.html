@@ -129,17 +129,27 @@
       }
 
       let discountedPrice;
+      let addedDiscount = 0; // Amount saved excluding rental credit
+      let totalDiscount = 0; // Amount saved including rental credit
 
       if (type === 'studentBand') {
         const maxDiscount = retail * 0.5;
-        discountedPrice = retail - credit;
-        discountedPrice -= discountedPrice * 0.3;
+        const afterCredit = retail - credit;
+        discountedPrice = afterCredit - (afterCredit * 0.3);
         discountedPrice = Math.max(retail - maxDiscount, discountedPrice);
+        
+        addedDiscount = afterCredit - discountedPrice;
+        if (addedDiscount < 0) addedDiscount = 0;
+        totalDiscount = retail - discountedPrice;
       } else if (type === 'studentString') {
         const maxDiscount = retail * 0.5;
-        discountedPrice = retail - credit;
-        discountedPrice -= discountedPrice * 0.2;
+        const afterCredit = retail - credit;
+        discountedPrice = afterCredit - (afterCredit * 0.2);
         discountedPrice = Math.max(retail - maxDiscount, discountedPrice);
+        
+        addedDiscount = afterCredit - discountedPrice;
+        if (addedDiscount < 0) addedDiscount = 0;
+        totalDiscount = retail - discountedPrice;
       } else if (type === 'intermediateBand') {
         const weighted = parseFloat(document.getElementById('weighted').value);
         if (isNaN(weighted)) {
@@ -147,8 +157,12 @@
           return;
         }
         const maxAllowedDiscount = weighted * 1.2;
-        discountedPrice = retail - credit;
-        discountedPrice = Math.max(discountedPrice, maxAllowedDiscount);
+        const afterCredit = retail - credit;
+        discountedPrice = Math.max(afterCredit, maxAllowedDiscount);
+        
+        addedDiscount = afterCredit - discountedPrice;
+        if (addedDiscount < 0) addedDiscount = 0;
+        totalDiscount = retail - discountedPrice;
       } else if (type === 'intermediateString') {
         const weighted = parseFloat(document.getElementById('weighted').value);
         if (isNaN(weighted)) {
@@ -156,15 +170,25 @@
           return;
         }
         const maxAllowedDiscount = weighted * 1.2;
-        discountedPrice = retail - credit;
-        discountedPrice -= discountedPrice * 0.2;
+        const afterCredit = retail - credit;
+        discountedPrice = afterCredit - (afterCredit * 0.2);
         discountedPrice = Math.max(discountedPrice, maxAllowedDiscount);
+        
+        addedDiscount = afterCredit - discountedPrice;
+        if (addedDiscount < 0) addedDiscount = 0;
+        totalDiscount = retail - discountedPrice;
       } else {
         result.textContent = 'Invalid calculator type.';
         return;
       }
 
-      result.textContent = `Cost to Purchase: $${discountedPrice.toFixed(2)}`;
+      result.innerHTML = `
+        <div>Cost to Purchase: $${discountedPrice.toFixed(2)}</div>
+        <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+          Added Discount: $${addedDiscount.toFixed(2)}<br>
+          Total Discount: $${totalDiscount.toFixed(2)}
+        </div>
+      `;
     }
 
     // Initialize visibility on page load
